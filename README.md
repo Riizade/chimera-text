@@ -22,7 +22,7 @@ None?
 
 investigate https://docs.rs/epub-builder/latest/epub_builder/ and https://docs.rs/epub/latest/epub/ for manipulating epub structure
 
-## Parallel Text Alignment
+## Automatic Anchor Points
 
 Probably what we'll want to do is get dictionaries between as many pairwise combinations of languages as possible.
 
@@ -41,6 +41,14 @@ Use high-confidence chunks to align the text by anchoring those chunks to each o
 Then fill in the gaps. For texts where they are structurally similar and direct translations, a naive linear interpolation approach should work. For translations where portions were removed or added, or even rearranged, we'll need to compare things like expected text size, and rely on the anchor points to make a best effort guess as to which portions of the text may not have corresponding text in the other epub.
 
 Once we've aligned the texts as best we can, we move on to the epub creation stage.
+
+## Manual Anchor Points
+
+Creating anchor points should be a separate, independent module from the usage of the anchor points to link the epub.
+
+This allows us to let users manually specify anchor points in case something about their book is substantially wonky, or the automatic detection doesn't work well for the two languages they've chosen.
+
+As a stretch goal, we could have this utility render each of the two input epubs side-by-side and offer a GUI for creating matching anchor points between the two texts.
 
 ## Epub Creation
 
