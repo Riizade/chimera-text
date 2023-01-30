@@ -61,6 +61,15 @@ We should offer a few different options here
 - Parallel columns of side-by-side text
 - All of A's text, then all of B's text, with hyperlinks between anchor points to facilitate navigation between the texts
 
+## Dictionary Sources and Tools
+
+- https://github.com/kujirahand/EJDict
+- https://github.com/argosopentech/argos-translate
+- https://freedict.org/ (LGPL 3+)
+- https://github.com/open-dsl-dict/wiktionary-dict (bilingual DSL dictionaries under Creative Commons Attribution-ShareAlike 3.0 Unported or GNU Free Documentation License)
+- https://lib.rs/crates/harlaw (converts DSL dictionaries to JSON)
+- https://github.com/freedict/libdict (reads dictd format dictionaries)
+
 # License
 
 MIT Licensed
