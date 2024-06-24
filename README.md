@@ -74,4 +74,4 @@ We should offer a few different options here
 
 MIT Licensed
 
-Works in the `test-books/` directory are not covered by the license. These are public domain worked fetched from Project Gutenberg.
+Works in the `test-books/` directory are not covered by the license. These are public domain works fetched from Project Gutenberg.
