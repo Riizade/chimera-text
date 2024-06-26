@@ -25,3 +25,17 @@ pub enum MergeType {
     /// the merged text will have all of text A, then all of text B, but will insert hyperlinks to navigate between them for every paragraph
     HyperlinkParagraphs,
 }
+
+#[derive(Debug, Clone, Default)]
+pub struct EpubText {
+    pub table_of_contents: Option<String>,
+    pub preamble: Option<String>,
+    pub chapters: Vec<Chapter>,
+    pub epilogue: Option<String>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Chapter {
+    pub title: String,
+    pub paragraphs: Vec<String>,
+}

@@ -40,6 +40,13 @@ Probably what we'll want to do is parse to a structure consisting of
 
 Once we've lined up the chapters, we can attempt to line up smaller units of text, e.g., paragraphs by the presence of `<p>` tags or extra newlines/line breaks.
 
+Parsers to try out:
+
+- https://github.com/servo/html5ever
+- https://crates.io/crates/kuchiki
+- https://crates.io/crates/scraper
+- https://docs.rs/html_parser/latest/html_parser/
+
 ## Word Match Anchor Points
 
 We can explore matching locations between parallel texts via translation as well.
