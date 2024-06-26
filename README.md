@@ -12,10 +12,6 @@ This project does not exist yet! This repository contains notes on how I might i
 - rust
 - cargo
 
-## Executable
-
-None?
-
 # Notes
 
 ## Epub
@@ -37,15 +33,17 @@ Numeric support would need to include:
 
 Once we've lined up the chapters, we can attempt to line up smaller units of text, e.g., paragraphs by the presence of `<p>` tags or extra newlines/line breaks.
 
-## Automatic Anchor Points
+## Word Match Anchor Points
 
-Probably what we'll want to do is get dictionaries between as many pairwise combinations of languages as possible.
+We can explore matching locations between parallel texts via translation as well.
+
+Probably what we'll want to do is get dictionaries between as many pairwise combinations of languages as possible. For pairwise combinations that are unavailable, we can try using a more popular language as an intermediary, such as English or Mandarin.
 
 Next, we build n-gram lookup tables from each dictionary. (This will be a many-to-many relationship, because words do not translate directly from one language to another.)
 
 Then we chunk the texts into a hierarchy of chunk sizes, something like chapter -> paragraph -> n-gram/word/atomic-lexeme.
 
-We do a naive alignment of text, and then start pairwise comparisons of chunk to chunk, and sliding the alignment backward or forward by some amount to try to find the correct pairwise chunks (roughly).
+We do a naive alignment of text by analyzing chapter/paragraph structure, and then start pairwise comparisons of chunk to chunk, and sliding the alignment backward or forward by some amount to try to find the correct pairwise chunks (roughly).
 
 We compare chunks by taking each atomic lexeme that is part of that chunk and using the dictionary lookup table. If the atomic lexeme has a matching atomic lexeme in the parallel chunk, that's a hit. If not, that's a miss.
 
@@ -58,6 +56,8 @@ Then fill in the gaps. For texts where they are structurally similar and direct 
 Once we've aligned the texts as best we can, we move on to the epub creation stage.
 
 ## Manual Anchor Points
+
+We can also allow users to create manual anchor points if they're technically inclined and willing to delve into the epub structure.
 
 Creating anchor points should be a separate, independent module from the usage of the anchor points to link the epub.
 
@@ -72,11 +72,12 @@ We should offer a few different options here
 - Alternating text for different chunks (A, then B, then A)
   - Chapter-by-chapter
   - Paragraph-by-paragraph
-  - Sentence-by-sentence
 - Parallel columns of side-by-side text
 - All of A's text, then all of B's text, with hyperlinks between anchor points to facilitate navigation between the texts
 
 ## Dictionary Sources and Tools
+
+Places where we can find resources that might be useful for this project.
 
 - https://github.com/kujirahand/EJDict
 - https://github.com/argosopentech/argos-translate
