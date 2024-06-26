@@ -20,7 +20,22 @@ None?
 
 ## Epub
 
-investigate https://docs.rs/epub-builder/latest/epub_builder/ and https://docs.rs/epub/latest/epub/ for manipulating epub structure
+Epub structures are not reliable. See the organization of Alice's Adventures in Wonderland.it.epub for an example. It has only 3 "chapters" (xhtml pages), which are unrelated to the actual structure of the book. Chapters are instead managed entirely via formatting and hyperlinks.
+
+In order for this to work, we're going to have to try to automatically detect chapters via formatting such as headers.
+
+We also need some methods to line up chapters. One approach is to try to detect chapters along with their index by looking for numerics literally. Then we can match chapters between the two texts via their parsed numerals.
+
+Numeric support would need to include:
+
+- arabic numerals
+- Japanese kanji numerals (百五十六 = 156)
+- Japanese kanji digits (e.g., 一五六 = 156, 一 0 六 = 106)
+- Mandarin hanzi numerals (e.g., 一百五十六 = 156)
+- Mandarin hanzi digits (e.g., 一五六 = 156)
+- Roman numerals (e.g., XII)
+
+Once we've lined up the chapters, we can attempt to line up smaller units of text, e.g., paragraphs by the presence of `<p>` tags or extra newlines/line breaks.
 
 ## Automatic Anchor Points
 

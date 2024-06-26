@@ -4,8 +4,13 @@ use std::{
 };
 
 use anyhow::{anyhow, Context, Result};
-use chimera_text::core::log::initialize_logging;
+use chimera_text::core::{
+    data::MergeType,
+    log::initialize_logging,
+    merge::{self, merge},
+};
 use clap::{Args, Parser, Subcommand};
+use epub::doc::EpubDoc;
 use log::LevelFilter;
 
 #[derive(Parser)]
@@ -22,7 +27,8 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// merges two ebooks together to create a parallel text
-    Merge(Merge),
+    #[command(alias = "merge")]
+    MergeTexts(Merge),
     /// command for testing
     #[cfg(debug_assertions)]
     Debug,
@@ -39,6 +45,8 @@ struct Merge {
     /// this text's contents will show up second when alternating between parallel texts
     #[arg(short = 'b', long, verbatim_doc_comment)]
     text_b: PathBuf,
+    #[arg(short = 't', long, verbatim_doc_comment)]
+    merge_type: MergeType,
     /// the filepath to output the merged text to
     #[arg(short = 'o', long, alias = "out", verbatim_doc_comment)]
     output: PathBuf,
@@ -50,7 +58,7 @@ fn main() {
     initialize_logging(cli.log_level);
 
     let result = match &cli.command {
-        Commands::Merge(m) => merge(&m.text_a, &m.text_b, &m.output),
+        Commands::MergeTexts(m) => merge_texts(&m.text_a, &m.text_b, m.merge_type, &m.output),
         #[cfg(debug_assertions)]
         Commands::Debug => debug(),
     };
@@ -64,8 +72,11 @@ fn main() {
     }
 }
 
-fn merge(text_a: &Path, text_b: &Path, output: &Path) -> Result<()> {
-    unimplemented!();
+fn merge_texts(text_a: &Path, text_b: &Path, merge_type: MergeType, output: &Path) -> Result<()> {
+    let mut a = EpubDoc::new(text_a)?;
+    let mut b = EpubDoc::new(text_b)?;
+    let merged = merge::merge(&mut a, &mut b, merge_type)?;
+    std::fs::write(output, merged)?;
     Ok(())
 }
 
