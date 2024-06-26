@@ -37,5 +37,6 @@ pub struct EpubText {
 #[derive(Debug, Clone, Default)]
 pub struct Chapter {
     pub title: String,
+    pub subtitle: Option<String>,
     pub paragraphs: Vec<String>,
 }

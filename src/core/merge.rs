@@ -2,7 +2,7 @@ use anyhow::{anyhow, Context, Result};
 use epub::doc::EpubDoc;
 use epub_builder::{EpubBuilder, EpubContent, Result as EpubBuilderResult, ZipLibrary};
 
-use super::data::MergeType;
+use super::{data::MergeType, parse::parse_epub};
 
 pub fn merge<R>(
     text_a: &mut EpubDoc<R>,
@@ -51,6 +51,12 @@ fn add_content<R>(
 where
     R: std::io::Read + std::io::Seek,
 {
+    log::info!("a");
+    let text = parse_epub(a)?;
+    log::info!("b");
+    let text = parse_epub(b)?;
+
+    todo!();
     match merge_type {
         MergeType::AlternateChapters => add_content_alternating_chapters(builder, a, b),
         MergeType::AlternateParagraphs => add_content_alternating_paragraphs(builder, a, b),
@@ -68,24 +74,6 @@ fn add_content_alternating_chapters<R>(
 where
     R: std::io::Read + std::io::Seek,
 {
-    let mut idx = 0;
-    loop {
-        let (a_text, _) = a.get_current_str().unwrap();
-        let (b_text, _) = b.get_current_str().unwrap();
-        log::trace!("adding text from chapter {idx}\na: {a_text}\nb: {b_text}");
-        builder
-            .add_content(EpubContent::new(format!("a_{idx}"), a_text.as_bytes()))
-            .map_err(|e| anyhow!(e.to_string()))?;
-        builder
-            .add_content(EpubContent::new(format!("b_{idx}"), b_text.as_bytes()))
-            .map_err(|e| anyhow!(e.to_string()))?;
-        if !a.go_next() || !b.go_next() {
-            break;
-        }
-        idx += 1;
-    }
-
-    log::debug!("finished reading at chapter index {idx}");
     Ok(())
 }
 
