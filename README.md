@@ -31,6 +31,13 @@ Numeric support would need to include:
 - Mandarin hanzi digits (e.g., 一五六 = 156)
 - Roman numerals (e.g., XII)
 
+Probably what we'll want to do is parse to a structure consisting of
+
+- Table of Contents
+- Preamble (optional, includes, foreword, etc)
+- Chapters
+- Epilogue (optional, includes actual epilogue, as well as any post-novel text such as acknowledgments that come after the final chapter)
+
 Once we've lined up the chapters, we can attempt to line up smaller units of text, e.g., paragraphs by the presence of `<p>` tags or extra newlines/line breaks.
 
 ## Word Match Anchor Points
