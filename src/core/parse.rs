@@ -4,12 +4,13 @@ use regex::Regex;
 use xvii::Roman;
 
 use super::data::{Chapter, EpubText};
-use scraper::{node::Element, selectable::Selectable, Html, Node, Selector};
+use html_parser::{Dom, Element};
 
 #[derive(Clone, Debug)]
 pub struct Section {
-    header: String,
-    body: String,
+    header_html: String,
+    header_text: String,
+    body_html: String,
 }
 
 pub fn parse_epub<R>(epub: &mut EpubDoc<R>) -> Result<EpubText>
@@ -30,37 +31,36 @@ where
         }
     }
 
-    let html = Html::parse_document(&complete_text);
-    let root = html.tree.root();
     let mut sections: Vec<Section> = vec![];
     let mut current_section: Option<Section> = None;
-    for node in root.descendants() {
-        match node.value() {
-            Node::Comment(_) => todo!(),
-            Node::Document => todo!(),
-            Node::Fragment => todo!(),
-            Node::Doctype(_) => todo!(),
-            Node::Text(_) => todo!(),
-            Node::Element(e) => {
-                // if the element is a header, we finish the previous section and start the next section
-                if is_header(e) {
-                    if let Some(section) = &current_section {
-                        sections.push(section.clone());
-                    }
-                    current_section = Some(Section {
-                        header = e
-                    })
+    let html = Dom::parse(&complete_text)?;
+    for child in html.children {
+        if let Some(element) = child.element() {
+            // if the element is a header, we finish the previous section and start the next section
+            if is_header(element) {
+                if let Some(section) = &current_section {
+                    sections.push(section.clone());
+                }
+                current_section = Some(Section {
+                    header_html: display_element(element),
+                    header_text: element.source_span.text.clone(),
+                    body_html: "".to_string(),
+                });
+            } else {
+                // otherwise, add the element to the section body
+                if let Some(section) = &mut current_section {
+                    section.body_html += &display_element(element);
                 }
             }
-            Node::ProcessingInstruction(_) => todo!(),
         }
     }
-    let header_selector = Selector::parse("h1,h2,h3,h4,h5").unwrap();
-    let headers = html.select(&header_selector);
-    for h in headers {
-        let header_text = h.text().collect::<String>();
-        let chapter_number = get_chapter_number(&header_text);
-        log::info!("header: {header_text}\nchapter: {chapter_number:#?}");
+    // add the last section to the vector
+    sections.push(current_section.unwrap());
+
+    for section in sections {
+        log::info!("{0}", section.header_html);
+        log::info!("{0}", section.header_text);
+        log::info!("{0:#?}", get_chapter_number(&section.header_text));
         log::info!("--------------------------------------------");
     }
 
@@ -70,12 +70,16 @@ where
 fn is_header(e: &Element) -> bool {
     let header_classes = ["h1", "h2", "h3", "h4", "h5"];
     for class in header_classes {
-        if e.has_class(class, scraper::CaseSensitivity::AsciiCaseInsensitive) {
+        if e.classes.contains(&class.to_string()) {
             return true;
         }
     }
 
     return false;
+}
+
+fn display_element(e: &Element) -> String {
+    format!("{e:#?}")
 }
 
 fn get_chapter_number(text: &str) -> Option<i32> {
