@@ -4,7 +4,13 @@ use regex::Regex;
 use xvii::Roman;
 
 use super::data::{Chapter, EpubText};
-use scraper::{Html, Selector};
+use scraper::{node::Element, selectable::Selectable, Html, Node, Selector};
+
+#[derive(Clone, Debug)]
+pub struct Section {
+    header: String,
+    body: String,
+}
 
 pub fn parse_epub<R>(epub: &mut EpubDoc<R>) -> Result<EpubText>
 where
@@ -12,6 +18,8 @@ where
 {
     let mut complete_text: String = "".to_string();
     // add all epub sections to the complete text
+    // epub sections are just the .xhtml file divisions, they do not carry organizational significance in some cases
+    // so we can't rely on them for detecting chapters/sections
     loop {
         let (text, _) = epub
             .get_current_str()
@@ -23,8 +31,32 @@ where
     }
 
     let html = Html::parse_document(&complete_text);
-    let header_selctor = Selector::parse("h1,h2,h3,h4,h5").unwrap();
-    let headers = html.select(&header_selctor);
+    let root = html.tree.root();
+    let mut sections: Vec<Section> = vec![];
+    let mut current_section: Option<Section> = None;
+    for node in root.descendants() {
+        match node.value() {
+            Node::Comment(_) => todo!(),
+            Node::Document => todo!(),
+            Node::Fragment => todo!(),
+            Node::Doctype(_) => todo!(),
+            Node::Text(_) => todo!(),
+            Node::Element(e) => {
+                // if the element is a header, we finish the previous section and start the next section
+                if is_header(e) {
+                    if let Some(section) = &current_section {
+                        sections.push(section.clone());
+                    }
+                    current_section = Some(Section {
+                        header = e
+                    })
+                }
+            }
+            Node::ProcessingInstruction(_) => todo!(),
+        }
+    }
+    let header_selector = Selector::parse("h1,h2,h3,h4,h5").unwrap();
+    let headers = html.select(&header_selector);
     for h in headers {
         let header_text = h.text().collect::<String>();
         let chapter_number = get_chapter_number(&header_text);
@@ -33,6 +65,17 @@ where
     }
 
     Ok(EpubText::default())
+}
+
+fn is_header(e: &Element) -> bool {
+    let header_classes = ["h1", "h2", "h3", "h4", "h5"];
+    for class in header_classes {
+        if e.has_class(class, scraper::CaseSensitivity::AsciiCaseInsensitive) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 fn get_chapter_number(text: &str) -> Option<i32> {
