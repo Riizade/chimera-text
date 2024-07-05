@@ -4,6 +4,7 @@ use regex::Regex;
 use xvii::Roman;
 
 use super::data::{Chapter, EpubText};
+use html5ever::{driver, ParseOpts};
 use html_parser::{Dom, Element};
 
 #[derive(Clone, Debug)]
@@ -33,6 +34,10 @@ where
 
     let mut sections: Vec<Section> = vec![];
     let mut current_section: Option<Section> = None;
+    log::info!("before parse");
+    driver::parse_document(&complete_text, ParseOpts::default());
+    log::info!("parsed");
+    log::info!("gonna die");
     let html = Dom::parse(&complete_text)?;
     for child in html.children {
         if let Some(element) = child.element() {
